@@ -1,0 +1,5 @@
+node_modules/
+.zed/
+.env
+.DS_Store
+instruction.md
