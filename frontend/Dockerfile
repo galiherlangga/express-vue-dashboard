@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm ci
 
 # Copy source code
 COPY . .
@@ -19,6 +19,9 @@ RUN npm run build
 # Production stage with nginx
 FROM nginx:stable-alpine as production-stage
 
+# Install curl for health checks
+RUN apk add --no-cache curl
+
 # Copy built application
 COPY --from=build-stage /app/dist /usr/share/nginx/html
 
@@ -27,5 +30,9 @@ COPY nginx.conf /etc/nginx/nginx.conf
 
 # Expose port 80
 EXPOSE 80
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:80/health || exit 1
 
 CMD ["nginx", "-g", "daemon off;"]

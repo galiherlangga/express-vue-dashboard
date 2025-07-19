@@ -13,7 +13,9 @@ const getAllUsers = async (req, res) => {
             sortOrder = "desc",
         } = req.query;
         
-        const filter = {};
+        const filter = {
+            deletedAt: null
+        };
         
         if (search) {
             filter.$or = [
@@ -33,13 +35,12 @@ const getAllUsers = async (req, res) => {
         const skip = (parseInt(page) - 1) * parseInt(limit);
         const sort = {};
         sort[sortBy] = sortOrder === "asc" ? 1 : -1;
-        
         const users = await User.find(filter)
             .select('-password')
             .sort(sort)
             .skip(skip)
             .limit(parseInt(limit));
-        const totalUsers = await User
+        const totalUsers = await User.countDocuments(filter);
         const totalPages = Math.ceil(totalUsers / parseInt(limit));
         
         res.status(200).json({
@@ -221,7 +222,7 @@ const updateUser = async (req, res) => {
 const deleteUser = async (req, res) => {
     try {
         const { id } = req.params;
-        
+
         // Prevent deletion of the current user
         if (req.user._id.toString() === id) {
             return res.status(400).json({
@@ -229,16 +230,19 @@ const deleteUser = async (req, res) => {
                 message: "Cannot delete your own account",
             });
         }
-        
-        const user = await User.findByIdAndDelete(id);
-        
+
+        const user = await User.findById(id);
+
         if (!user) {
             return res.status(404).json({
                 success: false,
                 message: "User not found",
             });
         }
-        
+
+        user.deletedAt = new Date();
+        await user.save();
+
         res.status(200).json({
             success: true,
             message: "User deleted successfully",

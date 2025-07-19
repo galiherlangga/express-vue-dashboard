@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 
 const JWT_SECRET = process.env.JWT_SECRET || "default-key";
-const JWT_EXPIRATION = process.env.JWT_EXPIRATION || "1h";
+const JWT_EXPIRATION = process.env.JWT_EXPIRATION || "1d";
 const APP_NAME = process.env.APP_NAME || "express-dashboard";
 
 const generateToken = (payload) => {

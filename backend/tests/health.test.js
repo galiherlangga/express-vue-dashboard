@@ -2,9 +2,9 @@ const request = require('supertest');
 const app = require('../src/app');
 
 describe('Health Endpoint', () => {
-    describe('GET /health', () => {
+    describe('GET /api/health', () => {
         it('should return server status', async () => {
-            const response = await request(app).get('/health').expect(200);
+            const response = await request(app).get('/api/health').expect(200);
             
             expect(response.body).toHaveProperty('status', 'OK');
             expect(response.body).toHaveProperty('message', 'API is running smoothly');
@@ -13,7 +13,7 @@ describe('Health Endpoint', () => {
         });
         
         it('should include correct environment', async () => {
-            const response = await request(app).get('/health').expect(200);
+            const response = await request(app).get('/api/health').expect(200);
             
             expect(response.body.environment).toBe('test');
         });
